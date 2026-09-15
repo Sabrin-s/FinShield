@@ -1,17 +1,17 @@
 import React from 'react';
 import { 
-  ShieldAlert, 
   LayoutDashboard, 
   Microscope, 
   Share2, 
   FileText, 
   BookOpen, 
-  Sparkles, 
   PlayCircle,
   Activity,
   Sun,
-  Moon
+  Moon,
+  Zap
 } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 export default function Layout({ activeTab, setActiveTab, onOpenSimulator, activeCaseId, theme, onToggleTheme }) {
   const isLight = theme === 'light';
@@ -34,7 +34,7 @@ export default function Layout({ activeTab, setActiveTab, onOpenSimulator, activ
                   borderColor: 'var(--border-main)'
                 }}
               >
-                <ShieldAlert className="w-6 h-6" />
+                <BrandLogo className="w-6 h-6" isLight={isLight} />
               </div>
               <div>
                 <div className="font-bold text-base tracking-tight flex items-center gap-1.5" style={{ color: 'var(--text-main)' }}>
@@ -255,7 +255,7 @@ export default function Layout({ activeTab, setActiveTab, onOpenSimulator, activ
                 borderColor: 'var(--border-main)'
               }}
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Zap className="w-3.5 h-3.5" />
               <span>Simulate Threat</span>
             </button>
           </div>

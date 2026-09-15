@@ -8,7 +8,7 @@ import {
   Building2, 
   Globe, 
   DollarSign,
-  Sparkles,
+  Cpu,
   Bot,
   Layers,
   FileText
@@ -134,7 +134,7 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
+                <Cpu className="w-4 h-4" />
                 <span>Execute 7-Agent Swarm Investigation</span>
               </>
             )}

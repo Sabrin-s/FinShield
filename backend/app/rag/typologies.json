@@ -1,0 +1,85 @@
+[
+  {
+    "id": "TYP-001",
+    "category": "PLACEMENT",
+    "title": "Smurfing & Below-Threshold Structuring (BSA 31 U.S.C. 5324)",
+    "description": "Systematic breakdown of large cash/wire deposits into multiple transactions slightly beneath regulatory reporting thresholds (e.g., $9,000 - $9,950 vs $10,000 CTR limit) within short time windows across one or multiple linked accounts to evade mandatory currency transaction reporting.",
+    "regulatory_source": "FinCEN Advisory FIN-2012-A001 / FATF Recommendation 10",
+    "fatf_indicator": "FATF-IND-01",
+    "red_flags": [
+      "Multiple cash or wire deposits between $8,500 and $9,990 within a 24-72 hour timeframe",
+      "Deposits made at different branches or ATMs on the same business day",
+      "Immediate consolidation of layered funds and rapid outward wire transfer",
+      "Transaction amounts inconsistent with customer stated occupation and net worth"
+    ]
+  },
+  {
+    "id": "TYP-002",
+    "category": "LAYERING",
+    "title": "Pass-Through & Round-Trip Circular Fund Routing",
+    "description": "Complex multi-hop routing of funds through series of domestic and offshore shell accounts that ultimately return principal capital back to originating beneficiary or affiliate entities with disguised commercial rationale (loans, fake invoices, consultancy fees).",
+    "regulatory_source": "FATF Guidance on Concealment of Beneficial Ownership",
+    "fatf_indicator": "FATF-IND-05",
+    "red_flags": [
+      "Funds enter an account and depart within hours/days with minimal balance retention (Pass-through ratio > 90%)",
+      "Closed-loop graph topology where source entity receives funds back via intermediary nodes",
+      "Vague transaction descriptions such as 'consultancy', 'intercompany advance', or 'service fee'",
+      "Involvement of high-risk secrecy jurisdictions (BVI, Panama, Cyprus, Seychelles)"
+    ]
+  },
+  {
+    "id": "TYP-003",
+    "category": "LAYERING",
+    "title": "Money Mule Ring & Funnel Account Dispersal",
+    "description": "A central coordinator or illicit enterprise collects illegal proceeds into a primary funnel account, which then rapidly fans out split payments to recruited 'mule' accounts. Mules subsequently withdraw cash at ATMs, buy crypto, or wire funds overseas.",
+    "regulatory_source": "FinCEN Advisory on Money Mule Schemes (FIN-2020-A003)",
+    "fatf_indicator": "FATF-IND-08",
+    "red_flags": [
+      "Sudden dramatic surge in transaction volume on newly opened retail checking accounts",
+      "High node degree fan-out pattern in transaction graph (1 to many rapid disbursements)",
+      "Immediate ATM cash withdrawals or crypto gateway purchases following inbound transfers",
+      "Account holder profile represents vulnerable demographic (students, unemployed, elderly) with no commercial profile"
+    ]
+  },
+  {
+    "id": "TYP-004",
+    "category": "SANCTIONS_EVASION",
+    "title": "OFAC Sanctions Circumvention via Front Companies & Intermediaries",
+    "description": "Obfuscation of sanctioned entities, individuals, or prohibited jurisdictions using non-sanctioned front companies, nominee directors, or nesting correspondent banking channels to move capital through Western financial institutions.",
+    "regulatory_source": "OFAC Sanctions Compliance Guidance / US Treasury E.O. 14024",
+    "fatf_indicator": "FATF-IND-12",
+    "red_flags": [
+      "Beneficial owner or corporate officer name phonetic/fuzzy match to OFAC Specially Designated Nationals (SDN) list",
+      "Payment originator or beneficiary located in transit hubs bordering sanctioned territories (UAE, Turkey, Armenia, Kazakhstan)",
+      "Sudden alteration of wire routing instructions to exclude explicit entity names",
+      "Transactions involving dual-use high technology, heavy machinery, or aerospace equipment with offshore trading entities"
+    ]
+  },
+  {
+    "id": "TYP-005",
+    "category": "INTEGRATION",
+    "title": "Trade-Based Money Laundering (TBML) & Over-Invoicing",
+    "description": "Disguising criminal proceeds by manipulating the price, quantity, or quality of imported/exported commodities and commercial goods, using deceptive invoices to justify large international wire settlements.",
+    "regulatory_source": "FATF Trade-Based Money Laundering Report / APG TBML Typologies",
+    "fatf_indicator": "FATF-IND-15",
+    "red_flags": [
+      "Unit prices significantly higher than open market benchmark values for declared commodity",
+      "Shipment manifests and bill of lading documents missing or routed via indirect oceanic transshipments",
+      "Payment received from third parties with no demonstrable connection to the trade transaction",
+      "Vague commodity descriptions (e.g., 'consumer goods', 'miscellaneous electronic parts')"
+    ]
+  },
+  {
+    "id": "TYP-006",
+    "category": "INTEGRATION",
+    "title": "Crypto-to-Fiat Nested P2P Gateway Washing",
+    "description": "Conversion of illicit fiat deposits into convertible virtual currencies (CVCs) via non-compliant virtual asset service providers (VASPs), peer-to-peer (P2P) trading desks, or decentralized mixers, followed by off-ramping into traditional banking systems.",
+    "regulatory_source": "FATF Updated Guidance for Virtual Assets & VASPs",
+    "fatf_indicator": "FATF-IND-19",
+    "red_flags": [
+      "Recurring wires directly to high-risk unhosted crypto exchange nodes or high-risk OTC brokers",
+      "Fast succession of small fiat deposits converted into single consolidated outgoing wire to offshore crypto desk",
+      "No rational retail investment pattern; immediate off-ramp without typical holding periods"
+    ]
+  }
+]

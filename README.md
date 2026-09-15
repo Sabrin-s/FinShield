@@ -1,12 +1,5 @@
 # FinGuard AI — Multi-Agent AML Investigation & Financial Risk Intelligence Platform
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-emerald.svg)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-18-cyan.svg)](https://reactjs.org/)
-[![Scikit-Learn](https://img.shields.io/badge/ML-IsolationForest-orange.svg)](https://scikit-learn.org/)
-[![NetworkX](https://img.shields.io/badge/Graph-NetworkX-indigo.svg)](https://networkx.org/)
-[![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
-
 FinGuard AI is a multi-agent Anti-Money Laundering (AML) forensic copilot and financial risk intelligence platform. It replaces black-box LLM decisions with an **explainable, multimodal multi-agent architecture** that combines machine learning anomaly detection, graph network cycle analysis, deterministic AML rule heuristics, vector-based regulatory RAG search, and automated audit-ready Suspicious Activity Report (SAR) generation.
 
 ---

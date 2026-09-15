@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import CaseWorkbench from './pages/CaseWorkbench';
@@ -11,6 +11,22 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [activeAlertId, setActiveAlertId] = useState('ALT-2026-8801');
   const [simulatorOpen, setSimulatorOpen] = useState(false);
+  
+  // Theme state: default to 'light' (white theme with ultra-clear letters) or 'dark'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('finguard_theme') || 'light';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('dark', 'light');
+    root.classList.add(theme);
+    localStorage.setItem('finguard_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
 
   const handleSelectAlert = (alertId) => {
     setActiveAlertId(alertId);
@@ -32,14 +48,17 @@ export default function App() {
         setActiveTab={setActiveTab}
         onOpenSimulator={() => setSimulatorOpen(true)}
         activeCaseId={activeAlertId}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
-      {/* Main Page Area Mounted through dynamic render */}
-      <div className="fixed inset-0 left-64 top-16 overflow-y-auto p-6 bg-[#07090e] bg-grid-pattern">
+      {/* Main Page Area */}
+      <div className="fixed inset-0 left-64 top-16 overflow-y-auto p-6 bg-grid-pattern transition-colors duration-200" style={{ backgroundColor: 'var(--bg-page)' }}>
         {activeTab === 'dashboard' && (
           <Dashboard 
             onSelectAlert={handleSelectAlert} 
             onOpenSimulator={() => setSimulatorOpen(true)} 
+            theme={theme}
           />
         )}
 
@@ -47,19 +66,20 @@ export default function App() {
           <CaseWorkbench 
             alertId={activeAlertId} 
             onBack={() => setActiveTab('dashboard')} 
+            theme={theme}
           />
         )}
 
         {activeTab === 'graph' && (
-          <NetworkExplorer />
+          <NetworkExplorer theme={theme} />
         )}
 
         {activeTab === 'sar' && (
-          <SARArchive />
+          <SARArchive theme={theme} />
         )}
 
         {activeTab === 'typologies' && (
-          <TypologyLibrary />
+          <TypologyLibrary theme={theme} />
         )}
       </div>
 
@@ -68,6 +88,7 @@ export default function App() {
         isOpen={simulatorOpen}
         onClose={() => setSimulatorOpen(false)}
         onInjected={handleScenarioInjected}
+        theme={theme}
       />
     </>
   );

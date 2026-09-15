@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Share2, Search, Filter } from 'lucide-react';
+import { Share2, Search } from 'lucide-react';
 import { api } from '../services/api';
 import NetworkGraph from '../components/NetworkGraph';
 
-export default function NetworkExplorer() {
+export default function NetworkExplorer({ theme }) {
   const [graphData, setGraphData] = useState({ nodes: [], edges: [], metrics: {} });
   const [accountQuery, setAccountQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const isLight = theme === 'light';
 
   useEffect(() => {
     loadGraph();
@@ -32,13 +33,14 @@ export default function NetworkExplorer() {
   return (
     <div className="space-y-6">
       {/* Top Controls */}
-      <div className="glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border"
+        style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-main)' }}>
         <div>
-          <h2 className="text-base font-bold text-white flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-cyan-400" />
+          <h2 className="text-base font-black flex items-center gap-2" style={{ color: 'var(--text-main)' }}>
+            <Share2 className="w-5 h-5" />
             <span>Global Entity & Fund-Flow Network Explorer</span>
           </h2>
-          <p className="text-xs text-slate-400">
+          <p className="text-xs font-semibold mt-0.5" style={{ color: 'var(--text-muted)' }}>
             Trace multi-hop transactions, circular money loops, and money mule hubs across all entities
           </p>
         </div>
@@ -49,11 +51,21 @@ export default function NetworkExplorer() {
             placeholder="Filter by account # (e.g. ACC-US-991024)"
             value={accountQuery}
             onChange={(e) => setAccountQuery(e.target.value)}
-            className="px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-slate-200 placeholder-slate-400 focus:outline-none focus:border-cyan-500 font-mono w-72"
+            className="px-3.5 py-2 border rounded-lg text-xs font-mono w-72 focus:outline-none"
+            style={{
+              backgroundColor: 'var(--bg-input)',
+              borderColor: 'var(--border-main)',
+              color: 'var(--text-main)'
+            }}
           />
           <button
             type="submit"
-            className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+            className="px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer border"
+            style={{
+              backgroundColor: isLight ? '#000000' : '#ffffff',
+              color: isLight ? '#ffffff' : '#000000',
+              borderColor: 'var(--border-main)'
+            }}
           >
             <Search className="w-3.5 h-3.5" />
             <span>Filter Graph</span>
@@ -62,13 +74,14 @@ export default function NetworkExplorer() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center h-64 text-cyan-400 font-mono text-sm animate-pulse">
+        <div className="flex items-center justify-center h-64 font-mono text-sm font-bold animate-pulse" style={{ color: 'var(--text-main)' }}>
           Computing graph centralities and cycle matrices...
         </div>
       ) : (
         <NetworkGraph 
           graphData={graphData}
           targetAccount={accountQuery}
+          theme={theme}
         />
       )}
     </div>

@@ -2,17 +2,74 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   FinGuard AI - Black & White High-Contrast Monochrome Design System
+   ========================================================================== */
+
 :root {
-  --bg-dark: #07090e;
-  --bg-card: #0e131f;
-  --bg-card-hover: #141b2d;
-  --border-card: #1e293b;
-  --border-card-highlight: #38bdf8;
-  --cyan-accent: #06b6d4;
-  --cyan-glow: rgba(6, 182, 212, 0.2);
-  --emerald-accent: #10b981;
-  --rose-accent: #f43f5e;
-  --amber-accent: #f59e0b;
+  /* DARK THEME (Pure Obsidian & Crisp White) */
+  --bg-page: #000000;
+  --bg-sidebar: #09090b;
+  --bg-header: rgba(9, 9, 11, 0.85);
+  --bg-card: #0c0d12;
+  --bg-card-hover: #16171d;
+  --bg-subtle: #18181b;
+  --bg-input: #121216;
+  
+  --border-main: #27272a;
+  --border-subtle: #1f1f23;
+  --border-focus: #ffffff;
+  
+  --text-main: #ffffff;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --text-inverse: #000000;
+  
+  --badge-bg: #18181b;
+  --badge-border: #3f3f46;
+  --badge-text: #ffffff;
+  
+  --accent-btn-bg: #ffffff;
+  --accent-btn-text: #000000;
+  --accent-btn-hover: #e4e4e7;
+  
+  --graph-node-bg: #18181b;
+  --graph-node-border: #ffffff;
+  --graph-canvas-bg: #050507;
+  --graph-edge: #52525b;
+}
+
+html.light {
+  /* WHITE THEME (Pure Stark White & Jet-Black Ultra-Clear Typography) */
+  --bg-page: #f8fafc;
+  --bg-sidebar: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.9);
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-subtle: #f4f4f5;
+  --bg-input: #ffffff;
+  
+  --border-main: #cbd5e1;
+  --border-subtle: #e2e8f0;
+  --border-focus: #000000;
+  
+  --text-main: #000000;
+  --text-secondary: #0f172a;
+  --text-muted: #334155;
+  --text-inverse: #ffffff;
+  
+  --badge-bg: #e2e8f0;
+  --badge-border: #94a3b8;
+  --badge-text: #000000;
+  
+  --accent-btn-bg: #000000;
+  --accent-btn-text: #ffffff;
+  --accent-btn-hover: #27272a;
+  
+  --graph-node-bg: #ffffff;
+  --graph-node-border: #000000;
+  --graph-canvas-bg: #ffffff;
+  --graph-edge: #64748b;
 }
 
 * {
@@ -22,15 +79,52 @@
 }
 
 body {
-  background-color: var(--bg-dark);
-  color: #f1f5f9;
+  background-color: var(--bg-page);
+  color: var(--text-main);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 code, pre {
   font-family: 'JetBrains Mono', monospace;
+}
+
+/* Clear Letters & Typography Contrast */
+html.light h1, 
+html.light h2, 
+html.light h3, 
+html.light h4, 
+html.light strong,
+html.light th {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+html.light p, 
+html.light span, 
+html.light td, 
+html.light div {
+  color: inherit;
+}
+
+html.light .text-slate-400,
+html.light .text-slate-500 {
+  color: #334155 !important; /* High contrast dark charcoal instead of washed out gray */
+}
+
+html.light .text-slate-300,
+html.light .text-slate-200,
+html.light .text-slate-100 {
+  color: #0f172a !important; /* Deep black text */
+}
+
+html.light .text-cyan-400,
+html.light .text-cyan-300 {
+  color: #000000 !important;
+  font-weight: 700;
 }
 
 /* Custom Scrollbars */
@@ -39,86 +133,72 @@ code, pre {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: var(--bg-page);
 }
 ::-webkit-scrollbar-thumb {
-  background: #25334d;
+  background: var(--border-main);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b4e72;
+  background: var(--text-muted);
 }
 
-/* Glassmorphism Card Style */
+/* High Contrast Card Style */
 .glass-panel {
-  background: rgba(14, 19, 31, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-card);
+  border: 1px solid var(--border-main);
   border-radius: 12px;
+  color: var(--text-main);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
 }
 
 .glass-panel-interactive {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .glass-panel-interactive:hover {
-  border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 0 20px rgba(6, 182, 212, 0.12);
+  border-color: var(--border-focus);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
   transform: translateY(-2px);
 }
 
-/* Glowing text & borders */
-.glow-cyan {
-  text-shadow: 0 0 16px rgba(6, 182, 212, 0.6);
+/* High Contrast Monochrome Badges */
+.badge-critical {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid #000000;
+  font-weight: 700;
 }
-.glow-rose {
-  text-shadow: 0 0 16px rgba(244, 63, 94, 0.6);
-}
-.glow-emerald {
-  text-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+html.dark .badge-critical {
+  background: #27272a;
+  color: #ffffff;
+  border: 1px solid #ffffff;
 }
 
-/* Multi-Agent Pulse Indicator */
-@keyframes agent-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.15);
-  }
+.badge-high {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--border-main);
+  font-weight: 700;
 }
-.animate-agent-pulse {
-  animation: agent-pulse 1.8s infinite ease-in-out;
+
+.badge-medium {
+  background: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-main);
+  font-weight: 600;
+}
+
+.badge-low {
+  background: var(--bg-subtle);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 /* Grid Background */
 .bg-grid-pattern {
-  background-size: 40px 40px;
+  background-size: 32px 32px;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-}
-
-/* Risk Badges */
-.badge-critical {
-  background: rgba(244, 63, 94, 0.15);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.35);
-}
-.badge-high {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-}
-.badge-medium {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.35);
-}
-.badge-low {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
+    linear-gradient(to right, rgba(128, 128, 128, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(128, 128, 128, 0.07) 1px, transparent 1px);
 }

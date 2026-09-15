@@ -18,19 +18,15 @@ services:
         value: production
 
   # 2. React / Vite Forensic Intelligence Dashboard (Static Site)
-  - type: static
+  - type: web
     name: finguard-frontend
+    runtime: static
     rootDir: frontend
-    plan: free
-    region: oregon
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: finguard-backend
-          property: host
+        value: https://finguard-backend.onrender.com
     routes:
       - type: rewrite
         source: /*

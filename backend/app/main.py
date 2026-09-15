@@ -42,11 +42,33 @@ app.include_router(transactions_router, prefix=settings.API_V1_STR)
 app.include_router(sar_router, prefix=settings.API_V1_STR)
 app.include_router(metrics_router, prefix=settings.API_V1_STR)
 
-@app.get("/")
-def root():
-    return {
-        "status": "ONLINE",
-        "system": "FinGuard AI AML Intelligence Platform",
-        "version": "1.0.0",
-        "docs_url": "/docs"
-    }
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Check for built frontend dist (enables single-service full-stack deployment on Render/Docker)
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
+if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, "index.html")):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/")
+    async def serve_root():
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
+else:
+    @app.get("/")
+    def root():
+        return {
+            "status": "ONLINE",
+            "system": "FinGuard AI AML Intelligence Platform",
+            "version": "1.0.0",
+            "docs_url": "/docs"
+        }

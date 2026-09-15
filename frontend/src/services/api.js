@@ -1,4 +1,8 @@
-const API_BASE = '/api/v1';
+let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
+if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://')) {
+  rawBaseUrl = `https://${rawBaseUrl}`;
+}
+const API_BASE = `${rawBaseUrl}/api/v1`;
 
 export const api = {
   // Metrics & KPIs

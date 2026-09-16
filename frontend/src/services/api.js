@@ -82,13 +82,28 @@ export const api = {
     return res.json();
   },
 
-  injectScenario: async (scenarioType) => {
+  injectScenario: async (scenarioType, customData = null) => {
+    const payload = customData ? { ...customData, scenario_type: scenarioType } : { scenario_type: scenarioType };
     const res = await fetch(`${API_BASE}/transactions/simulate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ scenario_type: scenarioType })
+      body: JSON.stringify(payload)
     });
     if (!res.ok) throw new Error('Scenario injection failed');
+    return res.json();
+  },
+
+  uploadTransactionsFile: async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await fetch(`${API_BASE}/transactions/upload`, {
+      method: 'POST',
+      body: formData
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.detail || 'File upload failed');
+    }
     return res.json();
   },
 

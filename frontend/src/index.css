@@ -99,8 +99,8 @@ html.light h3,
 html.light h4, 
 html.light strong,
 html.light th {
-  color: #000000 !important;
-  font-weight: 700 !important;
+  color: #000000;
+  font-weight: 700;
 }
 
 html.light p, 

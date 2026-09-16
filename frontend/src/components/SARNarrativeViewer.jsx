@@ -2,17 +2,43 @@ import React, { useState } from 'react';
 import { FileText, Download, ShieldCheck, Copy, Check } from 'lucide-react';
 import { api } from '../services/api';
 
-export default function SARNarrativeViewer({ sarDraft, onStatusUpdate, theme }) {
+export default function SARNarrativeViewer({ sarDraft, onStatusUpdate, onRunInvestigation, isRunning, theme }) {
   const [copied, setCopied] = useState(false);
   const [isFiling, setIsFiling] = useState(false);
   const isLight = theme === 'light';
 
   if (!sarDraft || !sarDraft.narrative) {
     return (
-      <div className="glass-panel p-8 text-center space-y-2">
-        <FileText className="w-10 h-10 mx-auto" style={{ color: 'var(--text-muted)' }} />
-        <h4 className="text-sm font-bold" style={{ color: 'var(--text-main)' }}>No SAR Draft Generated Yet</h4>
-        <p className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Run the multi-agent investigation to synthesize the formal SAR narrative.</p>
+      <div className="glass-panel p-8 text-center space-y-4 max-w-lg mx-auto my-6 border"
+        style={{ borderColor: 'var(--border-main)', backgroundColor: 'var(--bg-card)' }}>
+        <div className="w-12 h-12 mx-auto rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center">
+          <FileText className="w-6 h-6" />
+        </div>
+        <div>
+          <h4 className="text-sm font-bold" style={{ color: 'var(--text-main)' }}>No SAR Draft Generated Yet</h4>
+          <p className="text-xs font-medium mt-1 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
+            The formal FinCEN Form 111 Suspicious Activity Report narrative is drafted automatically when the 7-Agent Swarm analyzes this case.
+          </p>
+        </div>
+        {onRunInvestigation && (
+          <button
+            onClick={onRunInvestigation}
+            disabled={isRunning}
+            className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center justify-center gap-2 mx-auto cursor-pointer shadow-sm disabled:opacity-60 transition"
+          >
+            {isRunning ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <span>Swarm Synthesizing SAR...</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="w-4 h-4" />
+                <span>Execute 7-Agent Swarm to Generate SAR</span>
+              </>
+            )}
+          </button>
+        )}
       </div>
     );
   }

@@ -24,6 +24,8 @@ import CopilotChat from '../components/CopilotChat';
 export default function CaseWorkbench({ alertId, onBack, theme }) {
   const [alertDetail, setAlertDetail] = useState(null);
   const [investigationState, setInvestigationState] = useState(null);
+  const [baselineGraph, setBaselineGraph] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [isRunning, setIsRunning] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -38,11 +40,18 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
 
   const loadAlert = async () => {
     setLoading(true);
+    setLoadError(null);
     try {
       const data = await api.getAlertDetail(alertId);
       setAlertDetail(data);
+      if (data?.account?.account_number) {
+        api.getNetworkGraph(data.account.account_number)
+          .then(g => setBaselineGraph(g))
+          .catch(e => console.error("Baseline graph load error:", e));
+      }
     } catch (err) {
       console.error(err);
+      setLoadError(err.message || "Failed to connect to backend API");
     } finally {
       setLoading(false);
     }
@@ -56,7 +65,6 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
     const interval = setInterval(() => {
       setActiveStep(prev => {
         if (prev >= 7) {
-          clearInterval(interval);
           return 7;
         }
         return prev + 1;
@@ -89,6 +97,18 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
 
   return (
     <div className="space-y-6">
+      {loadError && (
+        <div className="p-4 rounded-xl border bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-400 space-y-2">
+          <div className="flex items-center gap-2 font-bold text-xs">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Cannot reach Backend API: {loadError}</span>
+          </div>
+          <p className="text-xs leading-relaxed font-medium">
+            If you are running locally, start your backend with <code>.\run.bat</code>. If you are on Vercel, ensure you have configured <code>VITE_API_BASE_URL</code> pointing to your Render backend in your Vercel Project Settings &rarr; Environment Variables.
+          </p>
+        </div>
+      )}
+
       {/* Top Case Header & CDD Summary */}
       <div className="glass-panel p-6 space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4" style={{ borderColor: 'var(--border-main)' }}>
@@ -257,7 +277,7 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
       {/* Tab 2: Network Graph */}
       {activeTab === 'graph' && (
         <NetworkGraph 
-          graphData={investigationState?.graph_findings || {}}
+          graphData={investigationState?.graph_findings || baselineGraph || {}}
           targetAccount={account.account_number}
           theme={theme}
         />
@@ -276,6 +296,8 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
       {activeTab === 'sar' && (
         <SARNarrativeViewer 
           sarDraft={investigationState?.sar_draft}
+          onRunInvestigation={handleRunInvestigation}
+          isRunning={isRunning}
           theme={theme}
         />
       )}

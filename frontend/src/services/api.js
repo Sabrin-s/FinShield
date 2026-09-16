@@ -2,6 +2,7 @@ let rawBaseUrl = import.meta.env.VITE_API_BASE_URL || '';
 if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://')) {
   rawBaseUrl = `https://${rawBaseUrl}`;
 }
+rawBaseUrl = rawBaseUrl.replace(/\/+$/, '');
 const API_BASE = `${rawBaseUrl}/api/v1`;
 
 export const api = {

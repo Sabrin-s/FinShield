@@ -1,6 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from app.core.config import settings
 from app.db.database import engine, Base
@@ -42,9 +45,14 @@ app.include_router(transactions_router, prefix=settings.API_V1_STR)
 app.include_router(sar_router, prefix=settings.API_V1_STR)
 app.include_router(metrics_router, prefix=settings.API_V1_STR)
 
-import os
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+@app.get("/health")
+def health_check():
+    return {
+        "status": "ONLINE",
+        "system": "FinGuard AI AML Intelligence Platform",
+        "version": "1.0.0",
+        "docs_url": "/docs"
+    }
 
 # Check for built frontend dist (enables single-service full-stack deployment on Render/Docker)
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "frontend", "dist"))
@@ -54,8 +62,16 @@ if os.path.exists(frontend_dist) and os.path.exists(os.path.join(frontend_dist, 
         app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
 
     @app.get("/")
-    async def serve_root():
-        return FileResponse(os.path.join(frontend_dist, "index.html"))
+    async def serve_root(request: Request):
+        accept = request.headers.get("accept", "")
+        if "text/html" in accept:
+            return FileResponse(os.path.join(frontend_dist, "index.html"))
+        return {
+            "status": "ONLINE",
+            "system": "FinGuard AI AML Intelligence Platform",
+            "version": "1.0.0",
+            "docs_url": "/docs"
+        }
 
     @app.get("/{full_path:path}")
     async def serve_spa(full_path: str):
@@ -72,3 +88,4 @@ else:
             "version": "1.0.0",
             "docs_url": "/docs"
         }
+

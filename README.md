@@ -144,3 +144,41 @@ FinGuard AI includes a built-in **Live AML Threat Simulator** accessible directl
 3. **Money Mule Ring**: $180,000 inbound wire rapidly dispersed across 5 mule accounts.
 
 Once injected, trigger the **7-Agent Swarm** to watch the real-time detection, graph visualization, and SAR drafting live!
+
+---
+
+## Production Deployment Guide (Frontend on Vercel + Backend on Render)
+
+### 1. Deploy Backend to Render (FastAPI)
+
+1. Sign in to [Render Dashboard](https://dashboard.render.com/) and click **New +** &rarr; **Web Service**.
+2. Connect your GitHub repository.
+3. Configure the service settings:
+   - **Name**: `finguard-backend` (or your preferred name)
+   - **Root Directory**: `backend`
+   - **Runtime**: `Python 3`
+   - **Branch**: `main`
+   - **Build Command**: `pip install -r requirements.txt`
+   - **Start Command**: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+4. In **Environment Variables**, add:
+   - `PYTHON_VERSION` = `3.10.8`
+   - `ENVIRONMENT` = `production`
+   - *(Optional)* `OPENAI_API_KEY` or `GROQ_API_KEY` (system defaults to local heuristics if omitted)
+5. Click **Deploy Web Service**. Once active, note your live backend URL (e.g. `https://finguard-backend.onrender.com`).
+
+---
+
+### 2. Deploy Frontend to Vercel (React + Vite)
+
+1. Sign in to [Vercel Dashboard](https://vercel.com/dashboard) and click **Add New...** &rarr; **Project**.
+2. Import your GitHub repository.
+3. In project configuration:
+   - **Root Directory**: Click **Edit** and choose `frontend`
+   - **Framework Preset**: `Vite` (auto-detected)
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+4. Expand **Environment Variables** and add:
+   - **Key**: `VITE_API_BASE_URL`
+   - **Value**: `https://finguard-backend.onrender.com` *(replace with your Render backend URL)*
+5. Click **Deploy**. Vercel will build and assign a global production URL (e.g. `https://finguard-frontend.vercel.app`).
+

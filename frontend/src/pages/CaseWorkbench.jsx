@@ -180,7 +180,7 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
         {[
           { id: 'overview', label: 'Multi-Agent Pipeline & Risk' },
           { id: 'graph', label: 'Entity Network Graph' },
-          { id: 'transactions', label: 'Forensic Ledger' },
+          { id: 'transactions', label: `Forensic Ledger (${alertDetail?.transactions?.length || alertDetail?.transactions_count || 0})` },
           { id: 'sar', label: 'Suspicious Activity Report (SAR)' },
           { id: 'copilot', label: 'Investigator Copilot AI' }
         ].map((tab) => {
@@ -205,23 +205,51 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
 
       {/* Tab 1: Overview (Agent Timeline + Risk Radar) */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <AgentExecutionVisualizer 
-            agentLogs={investigationState?.agent_logs || []}
-            isRunning={isRunning}
-            activeStep={activeStep}
-            theme={theme}
-          />
-          <div className="space-y-6">
-            <RiskRadar 
-              riskAssessment={investigationState?.risk_assessment || {
-                overall_risk_score: alert.risk_score,
-                risk_tier: alert.severity === 'CRITICAL' ? 'CRITICAL_SUSPICION' : 'HIGH_RISK',
-                recommendation: 'EXECUTE_SWARM_INVESTIGATION',
-                factor_breakdown: []
-              }}
+        <div className="space-y-4">
+          {!investigationState && !isRunning && (
+            <div className="p-4 rounded-xl border flex items-center justify-between gap-4"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border-main)' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold" style={{ color: 'var(--text-main)' }}>
+                    {alert.alert_type === 'BATCH_UPLOAD' ? 'Uploaded Transactions Ready for Investigation' : 'Case Transactions Ingested'}
+                  </h4>
+                  <p className="text-[11px] font-semibold" style={{ color: 'var(--text-muted)' }}>
+                    {alertDetail?.transactions?.length || alertDetail?.transactions_count || 0} financial records loaded. Click the black/white button above to trigger the 7-agent swarm.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTab('transactions')}
+                className="px-3 py-1.5 rounded-lg border text-xs font-bold cursor-pointer hover:underline shrink-0"
+                style={{ backgroundColor: 'var(--bg-subtle)', borderColor: 'var(--border-main)', color: 'var(--text-main)' }}
+              >
+                View Ledger &rarr;
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AgentExecutionVisualizer 
+              agentLogs={investigationState?.agent_logs || []}
+              isRunning={isRunning}
+              activeStep={activeStep}
               theme={theme}
             />
+            <div className="space-y-6">
+              <RiskRadar 
+                riskAssessment={investigationState?.risk_assessment || {
+                  overall_risk_score: alert.risk_score,
+                  risk_tier: alert.severity === 'CRITICAL' ? 'CRITICAL_SUSPICION' : 'HIGH_RISK',
+                  recommendation: 'EXECUTE_SWARM_INVESTIGATION',
+                  factor_breakdown: []
+                }}
+                theme={theme}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -238,7 +266,7 @@ export default function CaseWorkbench({ alertId, onBack, theme }) {
       {/* Tab 3: Transactions */}
       {activeTab === 'transactions' && (
         <TransactionTable 
-          transactions={investigationState?.transaction_findings?.all_scored_transactions || []}
+          transactions={investigationState?.transaction_findings?.all_scored_transactions || alertDetail?.transactions || []}
           targetAccount={account.account_number}
           theme={theme}
         />

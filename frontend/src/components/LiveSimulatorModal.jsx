@@ -1,5 +1,21 @@
 import React, { useState, useRef } from 'react';
-import { PlayCircle, X, Zap, Repeat, Users, ShieldAlert, Upload, FileText, CheckCircle2, AlertTriangle, FileUp, Code2 } from 'lucide-react';
+import { 
+  PlayCircle, 
+  X, 
+  Zap, 
+  Repeat, 
+  Users, 
+  ShieldAlert, 
+  Upload, 
+  FileText, 
+  CheckCircle2, 
+  AlertTriangle, 
+  FileUp, 
+  Code2,
+  Download,
+  ArrowRight,
+  Eye
+} from 'lucide-react';
 import { api } from '../services/api';
 
 const SCENARIOS = [
@@ -68,6 +84,13 @@ const SAMPLE_JSON_TEMPLATE = JSON.stringify({
   ]
 }, null, 2);
 
+const SAMPLE_CSV_CONTENT = `source_account,destination_account,amount,channel,description,country_source
+ACC-PAYROLL-EXT-01,ACC-DEST-99201,18500.0,WIRE,Executive Advance Payout,US
+ACC-PAYROLL-EXT-02,ACC-DEST-99201,24000.0,WIRE,Consultancy Retainer,GB
+ACC-PAYROLL-EXT-03,ACC-DEST-99201,9500.0,CASH_DEPOSIT,Branch Deposit Queens,US
+ACC-PAYROLL-EXT-04,ACC-DEST-99201,9800.0,CASH_DEPOSIT,Branch Deposit Midtown,US
+ACC-DEST-99201,ACC-OFFSHORE-999,48000.0,WIRE,Urgent Offshore Settlement,PA`;
+
 export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme }) {
   const [activeTab, setActiveTab] = useState('presets'); // 'presets' | 'upload' | 'json'
   const [selectedScenario, setSelectedScenario] = useState('SMURFING_INJECTION');
@@ -75,8 +98,9 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
 
-  // File upload state
+  // File upload & preview state
   const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState([]);
   const fileInputRef = useRef(null);
 
   // Custom JSON state
@@ -85,6 +109,57 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
   const isLight = theme === 'light';
 
   if (!isOpen) return null;
+
+  const parseFileForPreview = (file) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const content = ev.target?.result;
+        if (!content || typeof content !== 'string') return;
+
+        if (file.name.toLowerCase().endsWith('.json')) {
+          const data = JSON.parse(content);
+          const txs = Array.isArray(data) ? data : (data.transactions || [data]);
+          setFilePreview(txs.slice(0, 5));
+        } else if (file.name.toLowerCase().endsWith('.csv')) {
+          const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
+          if (lines.length > 1) {
+            const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+            const rows = lines.slice(1, 6).map(line => {
+              const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+              const obj = {};
+              headers.forEach((h, i) => { obj[h] = vals[i] || ''; });
+              return obj;
+            });
+            setFilePreview(rows);
+          }
+        }
+      } catch (e) {
+        console.error("Preview parse error", e);
+        setFilePreview([]);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      setError(null);
+      setResult(null);
+      parseFileForPreview(file);
+    }
+  };
+
+  const loadSampleCSV = () => {
+    const blob = new Blob([SAMPLE_CSV_CONTENT], { type: 'text/csv' });
+    const sampleFile = new File([blob], 'aml_sample_transactions.csv', { type: 'text/csv' });
+    setSelectedFile(sampleFile);
+    setError(null);
+    setResult(null);
+    parseFileForPreview(sampleFile);
+  };
 
   const handleInjectPreset = async () => {
     setLoading(true);
@@ -112,7 +187,6 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
     try {
       const res = await api.uploadTransactionsFile(selectedFile);
       setResult(res);
-      if (onInjected) onInjected(res);
     } catch (err) {
       setError(err.message || 'File upload failed');
     } finally {
@@ -128,12 +202,16 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
       const parsed = JSON.parse(customJsonText);
       const res = await api.injectScenario('CUSTOM_INJECTION', parsed);
       setResult(res);
-      if (onInjected) onInjected(res);
     } catch (err) {
       setError(`Invalid JSON or Injection Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoToCase = (res) => {
+    if (onInjected) onInjected(res);
+    onClose();
   };
 
   return (
@@ -182,25 +260,21 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
             onClick={() => { setActiveTab('presets'); setError(null); setResult(null); }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer border ${
               activeTab === 'presets'
-                ? isLight
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                 : isLight
                   ? 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                   : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800'
             }`}
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>Preset Topologies</span>
+            <span>Preset Topologies (4)</span>
           </button>
 
           <button
             onClick={() => { setActiveTab('upload'); setError(null); setResult(null); }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer border ${
               activeTab === 'upload'
-                ? isLight
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                 : isLight
                   ? 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                   : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800'
@@ -214,9 +288,7 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
             onClick={() => { setActiveTab('json'); setError(null); setResult(null); }}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition cursor-pointer border ${
               activeTab === 'json'
-                ? isLight
-                  ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                  : 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
                 : isLight
                   ? 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
                   : 'bg-zinc-900 text-zinc-300 border-zinc-800 hover:bg-zinc-800'
@@ -320,12 +392,29 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
           {/* TAB 2: FILE UPLOAD */}
           {activeTab === 'upload' && (
             <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
+                  Select File:
+                </span>
+                <button
+                  type="button"
+                  onClick={loadSampleCSV}
+                  className="text-[11px] font-bold text-blue-600 hover:underline cursor-pointer flex items-center gap-1"
+                >
+                  <Download className="w-3 h-3" />
+                  <span>Load Sample AML CSV File</span>
+                </button>
+              </div>
+
+              {/* Upload Dropzone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition ${
-                  isLight
-                    ? 'border-slate-300 hover:border-blue-500 bg-slate-50/50'
-                    : 'border-zinc-800 hover:border-blue-500 bg-zinc-900/40'
+                className={`border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition ${
+                  selectedFile
+                    ? 'border-emerald-500 bg-emerald-50/20'
+                    : isLight
+                      ? 'border-slate-300 hover:border-blue-500 bg-slate-50/50'
+                      : 'border-zinc-800 hover:border-blue-500 bg-zinc-900/40'
                 }`}
               >
                 <input
@@ -333,45 +422,77 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
                   type="file"
                   accept=".json,.csv"
                   className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setSelectedFile(e.target.files[0]);
-                      setError(null);
-                    }
-                  }}
+                  onChange={handleFileChange}
                 />
-                <div className="w-12 h-12 mx-auto rounded-full bg-blue-500/10 text-blue-600 flex items-center justify-center mb-3">
-                  <Upload className="w-6 h-6" />
+                <div className={`w-10 h-10 mx-auto rounded-full flex items-center justify-center mb-2 ${
+                  selectedFile ? 'bg-emerald-500/10 text-emerald-600' : 'bg-blue-500/10 text-blue-600'
+                }`}>
+                  {selectedFile ? <CheckCircle2 className="w-5 h-5" /> : <Upload className="w-5 h-5" />}
                 </div>
                 <h4 className="text-xs font-bold" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
                   {selectedFile ? selectedFile.name : 'Click to select or drag & drop a file'}
                 </h4>
                 <p className="text-[11px] mt-1 font-semibold" style={{ color: isLight ? '#64748b' : '#94a3b8' }}>
-                  Supported formats: <strong className="text-blue-600">.JSON</strong> or <strong className="text-blue-600">.CSV</strong> (transactions list)
+                  Supported formats: <strong className="text-blue-600">.JSON</strong> or <strong className="text-blue-600">.CSV</strong> (financial transactions)
                 </p>
                 {selectedFile && (
-                  <p className="text-[10px] font-mono mt-2 text-emerald-600 font-bold">
-                    Selected file size: {(selectedFile.size / 1024).toFixed(1)} KB
+                  <p className="text-[10px] font-mono mt-1 text-emerald-600 font-bold">
+                    File selected: {(selectedFile.size / 1024).toFixed(1)} KB
                   </p>
                 )}
               </div>
 
-              <div
-                className="p-3 rounded-xl border text-xs leading-relaxed"
-                style={{
-                  backgroundColor: isLight ? '#f8fafc' : '#18181b',
-                  borderColor: isLight ? '#e2e8f0' : '#27272a',
-                  color: isLight ? '#334155' : '#cbd5e1'
-                }}
-              >
-                <div className="font-bold flex items-center gap-1.5 mb-1" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
-                  <FileText className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Expected File Columns / JSON Keys:</span>
+              {/* Live File Content Preview Table */}
+              {filePreview.length > 0 && (
+                <div
+                  className="p-3 rounded-xl border text-xs overflow-hidden"
+                  style={{
+                    backgroundColor: isLight ? '#f8fafc' : '#18181b',
+                    borderColor: isLight ? '#e2e8f0' : '#27272a'
+                  }}
+                >
+                  <div className="flex items-center justify-between pb-2 mb-2 border-b font-bold" style={{ borderColor: isLight ? '#e2e8f0' : '#27272a' }}>
+                    <div className="flex items-center gap-1.5" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
+                      <Eye className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Parsed File Preview ({filePreview.length} records):</span>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold text-emerald-600 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20">
+                      Validated Format
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto max-h-36">
+                    <table className="w-full text-left font-mono text-[11px]">
+                      <thead>
+                        <tr className="border-b" style={{ borderColor: isLight ? '#e2e8f0' : '#27272a', color: isLight ? '#64748b' : '#94a3b8' }}>
+                          <th className="pb-1">From</th>
+                          <th className="pb-1">To</th>
+                          <th className="pb-1">Amount</th>
+                          <th className="pb-1">Channel</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y" style={{ borderColor: isLight ? '#f1f5f9' : '#27272a' }}>
+                        {filePreview.map((row, idx) => (
+                          <tr key={idx}>
+                            <td className="py-1 pr-2 truncate max-w-[120px] font-medium" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
+                              {row.source_account || row.from || 'ACC-SRC'}
+                            </td>
+                            <td className="py-1 pr-2 truncate max-w-[120px]" style={{ color: isLight ? '#475569' : '#a1a1aa' }}>
+                              {row.destination_account || row.to || 'ACC-DEST'}
+                            </td>
+                            <td className="py-1 font-bold text-emerald-600">
+                              ${Number(row.amount || 0).toLocaleString()}
+                            </td>
+                            <td className="py-1 text-[10px]" style={{ color: isLight ? '#64748b' : '#94a3b8' }}>
+                              {row.channel || 'WIRE'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-                <p className="text-[11px] font-mono" style={{ color: isLight ? '#475569' : '#94a3b8' }}>
-                  source_account, destination_account, amount, channel, description, country_source
-                </p>
-              </div>
+              )}
             </div>
           )}
 
@@ -412,13 +533,27 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
             </div>
           )}
 
-          {/* Success Result Message */}
+          {/* Success Result Card */}
           {result && (
-            <div className="p-3 rounded-xl border text-xs font-mono font-bold flex items-center gap-2 bg-emerald-500/10 border-emerald-500/20 text-emerald-600">
-              <CheckCircle2 className="w-4 h-4 shrink-0" />
-              <span>
-                {result.message || 'Case successfully created!'} Alert: #{result.alert_id}
-              </span>
+            <div className="p-4 rounded-xl border space-y-2.5 bg-emerald-500/10 border-emerald-500/30">
+              <div className="flex items-center gap-2 font-bold text-xs text-emerald-600">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span>{result.message || 'Case Generated Successfully!'}</span>
+              </div>
+              <div className="text-xs space-y-1 font-mono" style={{ color: isLight ? '#0f172a' : '#ffffff' }}>
+                <div>Alert Generated: <strong className="text-emerald-600">#{result.alert_id}</strong></div>
+                <div>Target Account: <strong>{result.account_number}</strong></div>
+                {result.transactions_count && (
+                  <div>Ingested Transactions: <strong>{result.transactions_count} records</strong></div>
+                )}
+              </div>
+              <button
+                onClick={() => handleGoToCase(result)}
+                className="w-full mt-2 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm transition"
+              >
+                <span>Open Case Workbench & View Forensic Ledger</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>
@@ -439,10 +574,10 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
                 color: isLight ? '#0f172a' : '#ffffff'
               }}
             >
-              Cancel
+              Close
             </button>
 
-            {activeTab === 'presets' && (
+            {activeTab === 'presets' && !result && (
               <button
                 onClick={handleInjectPreset}
                 disabled={loading}
@@ -462,7 +597,7 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
               </button>
             )}
 
-            {activeTab === 'upload' && (
+            {activeTab === 'upload' && !result && (
               <button
                 onClick={handleFileUpload}
                 disabled={loading || !selectedFile}
@@ -476,13 +611,13 @@ export default function LiveSimulatorModal({ isOpen, onClose, onInjected, theme 
                 ) : (
                   <>
                     <Upload className="w-4 h-4" />
-                    <span>Upload & Inject File</span>
+                    <span>Upload & Process File</span>
                   </>
                 )}
               </button>
             )}
 
-            {activeTab === 'json' && (
+            {activeTab === 'json' && !result && (
               <button
                 onClick={handleCustomJsonInject}
                 disabled={loading}

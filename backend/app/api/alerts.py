@@ -49,7 +49,26 @@ def get_alert_detail(alert_id: str, db: Session = Depends(get_db)):
     
     txs = db.query(Transaction).filter(
         (Transaction.source_account == alert.account_number) | (Transaction.destination_account == alert.account_number)
-    ).all()
+    ).order_by(Transaction.timestamp.desc()).all()
+
+    tx_list = [
+        {
+            "transaction_id": tx.transaction_id,
+            "source_account": tx.source_account,
+            "destination_account": tx.destination_account,
+            "amount": tx.amount,
+            "currency": tx.currency,
+            "timestamp": tx.timestamp.isoformat() if tx.timestamp else None,
+            "channel": tx.channel,
+            "description": tx.description,
+            "country_source": tx.country_source,
+            "country_dest": tx.country_dest,
+            "is_suspicious": tx.is_suspicious,
+            "anomaly_score": tx.anomaly_score,
+            "typology_tag": tx.typology_tag
+        }
+        for tx in txs
+    ]
     
     return {
         "alert": {
@@ -82,6 +101,7 @@ def get_alert_detail(alert_id: str, db: Session = Depends(get_db)):
             "balance": account.balance if account else 0.0,
             "currency": account.currency if account else "USD"
         },
+        "transactions": tx_list,
         "transactions_count": len(txs)
     }
 

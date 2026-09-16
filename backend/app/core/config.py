@@ -1,11 +1,12 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Optional
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "FinGuard AI — AML Investigation & Financial Risk Intelligence"
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "sqlite:///./finguard_aml.db"
+    ENVIRONMENT: str = "development"
     
     # LLM Settings (Optional - fallback to intelligent local rule/pattern engine if not provided)
     OPENAI_API_KEY: Optional[str] = None
@@ -20,8 +21,11 @@ class Settings(BaseSettings):
     
     CORS_ORIGINS: list[str] = ["*"]
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        extra="ignore"
+    )
 
 settings = Settings()
+

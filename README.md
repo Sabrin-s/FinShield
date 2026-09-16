@@ -1,6 +1,6 @@
 # FinGuard AI — Multi-Agent AML Investigation & Financial Risk Intelligence Platform
 
-Deploy Link - https://fin-shield-4xdeyr4wv-sabrincse004-8603s-projects.vercel.app/
+Deploy Link - https://fin-shield-sigma.vercel.app/
 
 FinGuard AI is a multi-agent Anti-Money Laundering (AML) forensic copilot and financial risk intelligence platform. It replaces black-box LLM decisions with an **explainable, multimodal multi-agent architecture** that combines machine learning anomaly detection, graph network cycle analysis, deterministic AML rule heuristics, vector-based regulatory RAG search, and automated audit-ready Suspicious Activity Report (SAR) generation.
 
